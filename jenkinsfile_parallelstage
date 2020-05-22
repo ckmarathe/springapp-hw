@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+    stages {
+        stage('Parallel In Sequential') {
+            parallel {
+                stage('In Parallel 1') {
+                    steps {
+                        sh "date; sleep 5; date"
+                    }
+                }
+                stage('In Parallel 2') {
+                    steps {
+                        sh "date"
+                    }
+                }
+            }
+        }
+    }
+}
