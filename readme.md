@@ -23,15 +23,15 @@ Hello World
 # Create Docker based Nexus repository
 - docker volume create --name nexus-data
 - docker run -d -p 8081:8081 --name nexus -v nexus-data:/nexus-data sonatype/nexus3
-URL : http://{Server_IP}/8081
-UserName : admin
-Password : admin
+- URL : http://{Server_IP}/8081
+- UserName : admin
+- Password : admin
 
 # Create Docker Based Sonarqube
 - docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
-URL : http://{Server_IP}/9000
-UserName : admin
-Password : admin
+- URL : http://{Server_IP}/9000
+- UserName : admin
+- Password : admin
 
 # Sonar quality gate integrate with jenkins pipeline
 To create the webhook form the SonarQube interface to, to do so you can perform the following steps
@@ -41,8 +41,6 @@ To create the webhook form the SonarQube interface to, to do so you can perform 
 
 # Create docker based mail server to send email notification from jenkins.
 - docker run -d -p 1025:1025 -p 8085:8025 mailhog/mailhog
-URL : http://{Server_IP}/8085
-UserName : admin
-Password : admin
-SMTP Port : 1025
-Ref : https://hub.docker.com/r/mailhog/mailhog/
+- URL : http://{Server_IP}/8085
+- SMTP Port : 1025
+- Ref : https://hub.docker.com/r/mailhog/mailhog/
