@@ -14,10 +14,10 @@ Hello World
 {"message":"Hello World - Changed"}
 ```
 
-- http://localhost/hello-world/path-variable/in28minutes
+- http://localhost/hello-world/path-variable/clientId
 
 ```json
-{"message":"Hello World, in28minutes"}
+{"message":"Hello World, clientId"}
 ```
 
 # Create Docker based Nexus repository
