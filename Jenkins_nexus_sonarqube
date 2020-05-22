@@ -1,0 +1,69 @@
+pipeline {
+    agent any 
+    stages {
+        stage('SCM BUILD') {
+            steps {
+                git credentialsId: 'github', url: 'https://github.com/ckmarathe/springapp-hw.git'
+            }
+        }
+        stage('Build artifact') {
+            steps {
+                script{
+                    sh "mvn clean package -DskipTests"
+                }
+            }
+        }
+        stage('Upload Artict to Nexus') {
+            steps {
+                script{
+                    def pom = readMavenPom file: 'pom.xml'
+                    nexusArtifactUploader artifacts: [
+                    [
+                        artifactId: 'springboot-hw',
+                        classifier: '',
+                        file: "target/springboot-hw-${pom.version}.jar",
+                        type: 'jar'
+                        ]
+                    ], 
+                    credentialsId: 'nexus3',
+                    groupId: 'com.in28minutes.rest.webservices',
+                    nexusUrl: '172.42.42.112:8081',
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    repository: 'springboot-hw-new',
+                    version: "${pom.version}"
+                }
+            }
+        }
+        stage("build & SonarQube analysis") {
+            steps {
+              withSonarQubeEnv('sonarqube') {
+                sh 'mvn sonar:sonar -Dmaven.test.skip=true'
+              }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+              timeout(time: 1, unit: 'HOURS') {
+                script{
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    }
+                    else{
+                        echo "Sonarscan successful."
+                    }
+                }
+              }
+            }
+        }
+        stage("Manual approval") {
+        input{
+            message "Deploy to Dev?"
+        }        
+            steps {
+                sh "echo Deploying."
+            }
+        }
+    }
+}
