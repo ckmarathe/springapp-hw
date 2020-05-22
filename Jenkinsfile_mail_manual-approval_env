@@ -1,0 +1,32 @@
+pipeline {
+    agent none
+        stages {
+            stage('Print date') {
+                agent any
+                steps {
+                    sh "date"
+                }
+            }
+            stage('send email') {
+                agent any
+                environment {
+                    STACK = 'DEV'
+                }
+                steps {
+                   notifyMe()
+                }
+            }
+            stage('Manual approval'){
+                agent none
+                steps {
+                    script{
+                        input "Continue?"
+                    }
+                }
+            }
+        }
+}
+def notifyMe(){
+
+  mail bcc: '', body: """<p>Check console output at "<a href="${env.BUILD_URL}/console">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""", cc: '', from: '', replyTo: '', subject: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' for '${STACK}'" , to: 'ckmarathe0326@gmail.com'
+}
