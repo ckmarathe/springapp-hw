@@ -1,0 +1,54 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+    name: eksspot-UAT
+    region: ap-south-1
+
+vpc:
+  clusterEndpoints:
+    publicAccess:  false
+    privateAccess: true
+  id: "vpc-xxxxxxxxxxxxx"  # (optional, must match VPC ID used for each subnet below)
+  cidr: "172.16.0.0/16"       # (optional, must match CIDR used by the given VPC)
+  subnets:
+    # must provide 'private' and/or 'public' subnets by availibility zone as shown
+    private:
+      ap-south-1a:
+        id: "subnet-xxxxxxx"
+        cidr: "172.16.4.0/24" # (optional, must match CIDR used by the given subnet)
+      ap-south-1b:
+        id: "subnet-xxxxxxx"
+        cidr: "172.16.5.0/24"  # (optional, must match CIDR used by the given subnet)
+      ap-south-1c:
+        id: "subnet-xxxxxxx"
+        cidr: "172.16.6.0/24"   # (optional, must match CIDR used by the given subnet)
+
+nodeGroups:
+    - name: eksspot-UAT
+      minSize: 0
+      maxSize: 5
+      desiredCapacity: 1
+      privateNetworking: true
+      volumeSize: 100
+      volumeType: gp2
+      instancesDistribution:
+        instanceTypes: ["t3a.medium", "c5.large", "t2.medium","t3.medium"] 
+        onDemandBaseCapacity: 0			                                      # (Ondemand instance count)
+        onDemandPercentageAboveBaseCapacity: 0	                          # (Ondemand instance percentage)
+        spotAllocationStrategy: capacity-optimized
+      labels:
+        lifecycle: Ec2Spot
+        intent: apps
+        aws.amazon.com/spot: "true"
+      taints:
+        spotInstance: "true:PreferNoSchedule"
+      tags:
+        k8s.io/cluster-autoscaler/node-template/label/lifecycle: Ec2Spot
+        k8s.io/cluster-autoscaler/node-template/label/intent: apps
+        k8s.io/cluster-autoscaler/node-template/label/aws.amazon.com/spot: "true"
+        k8s.io/cluster-autoscaler/node-template/taint/spotInstance: "true:PreferNoSchedule"
+      iam:
+        withAddonPolicies:
+          autoScaler: true
+          cloudWatch: true
+          albIngress: true
